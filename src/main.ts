@@ -6,6 +6,7 @@ import { LeaveCommand, leaveFunc, leaveFuncWithoutSlash } from './commands/leave
 import { RingCommand, ringFunc } from './commands/ring'
 import { yomiage } from './func/yomiage'
 import { generateDependencyReport } from '@discordjs/voice'
+import { dictAddFuncWithoutSlash, dictDeleteFuncWithoutSlash, dictGetFuncWithoutSlash } from './commands/dict'
 
 console.log(generateDependencyReport());
 //.envファイルを読み込む
@@ -41,20 +42,55 @@ client.on('messageCreate', async (message: Message) => {
     const target=MAP.get(message.guildId??"")
     console.log(MAP)
     console.log(target,message.channelId)
-    switch(message.content){
-      case "!yomiage call":
-        CallFuncWithoutSlash(message).then(()=>{
-          //@ts-ignore
-          MAP.set(message.guildId??"",message.channelId)
-          return
-        })
-        break
-      case "!yomiage leave":
-        leaveFuncWithoutSlash(message)
+    const str=message.content.split(" ")
+    if(str[0]=="!yomiage"){
+        if(str.length>=2){
+        switch(str[1]){
+          case "call":
+            CallFuncWithoutSlash(message).then(()=>{
+              //@ts-ignore
+              MAP.set(message.guildId??"",message.channelId)
+              return
+            })
+            return
+          case "leave":
+            leaveFuncWithoutSlash(message)
+            return
+          case "dict":
+            if(str.length<3){
+              message.reply("引数が足りません")
+              return
+            }
+            switch(str[2]){
+              case "add":
+                if(str.length<5){
+                  message.reply("引数が足りません")
+                  return
+                }
+                console.log("array"+JSON.stringify(str))
+                dictAddFuncWithoutSlash(message,str[3],str[4])
+                return
+              case "get":
+                dictGetFuncWithoutSlash(message)
+                return
+              case "delete":
+                if(str.length<4){
+                  message.reply("引数が足りません")
+                  return
+                }
+                dictDeleteFuncWithoutSlash(message,str[3])
+                return
+            }
+            return
+        }
+      }else{
+        message.reply("引数が足りません")
+        return
+      }
     }
     if(!target)return
     if(message.channelId!=target)return
-    yomiage(message.content,message.guildId??"0")
+    yomiage(message.content.replace(/(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+\$,%#]+)/,""),message.guildId??"0")
 })
 
 async function ComandCalled(interaction: Interaction){
