@@ -90,7 +90,7 @@ client.on('messageCreate', async (message: Message) => {
     }
     if(!target)return
     if(message.channelId!=target)return
-    yomiage(message.content.replace(/(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+\$,%#]+)/,""),message.guildId??"0")
+    yomiage(message.content.replace(/(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+\$,%#]+)/,"").replace(/;.*\n/,"").replace(/;.*$/,""),message.guildId??"0")
 })
 
 async function ComandCalled(interaction: Interaction){
