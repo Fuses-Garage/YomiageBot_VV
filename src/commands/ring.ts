@@ -17,7 +17,6 @@ export const ringFunc=async (interaction:CommandInteraction)=>{
         const path=await makeWav("これはテスト音声です",process.env.VOICEVOX_ENDPOINT??"",`${process.env.SOUND_DIR}${Math.random().toString(32).substring(2)}.wav`)
         const resource = createAudioResource(path, { inputType: StreamType.Arbitrary });
         console.log(path)
-        console.log(resource)
         player.play(resource);
         connection.setSpeaking(true)
         connection.subscribe(player);

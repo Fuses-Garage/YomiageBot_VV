@@ -1,4 +1,4 @@
-import { joinVoiceChannel } from "@discordjs/voice";
+import { joinVoiceChannel, VoiceConnectionStatus, entersState } from "@discordjs/voice";
 import { ChannelType, CommandInteraction, Message, SlashCommandBuilder, SlashCommandChannelOption } from "discord.js";
 
 export const CallCommand=new SlashCommandBuilder()
@@ -12,6 +12,7 @@ export const CallCommand=new SlashCommandBuilder()
 .addChannelOption((build:SlashCommandChannelOption)=>{
     build.setRequired(true)
     build.addChannelTypes(ChannelType.GuildText)
+    build.addChannelTypes(ChannelType.GuildVoice)
     build.setName("readtarget")
     build.setDescription("読み上げる対象のテキストチャンネル")
     return build
@@ -26,7 +27,6 @@ export const callFunc=async (interaction:CommandInteraction)=>{
         const c_id=channel?.id
         const g_id=interaction.guildId
         console.log(c_id,g_id)
-        console.log(channel)
         const a_creator=interaction.guild?.voiceAdapterCreator
         console.log(a_creator)
         if (!channel) {
@@ -54,12 +54,16 @@ export const callFunc=async (interaction:CommandInteraction)=>{
             const connection = joinVoiceChannel({
                 channelId: c_id,
                 guildId: g_id,
-                adapterCreator: a_creator,
+                adapterCreator: a_creator as any,
                 selfMute: false,
                 selfDeaf: true,
             });
-            console.log(connection.state)
-            interaction.reply("接続に成功しました。").catch(() => { });
+            try{
+                await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
+                interaction.reply("接続に成功しました。").catch(() => { });
+            }catch(e){
+                interaction.reply("VCへの接続がタイムアウトしました。").catch(() => { });
+            }
         }else{
             throw("")
         }
@@ -75,10 +79,7 @@ export const CallFuncWithoutSlash=async (message:Message)=>{
         const channel=message.member?.voice.channel
         const c_id=channel?.id
         const g_id=message.guildId
-        console.log(c_id,g_id)
-        console.log(channel)
         const a_creator=message.guild?.voiceAdapterCreator
-        console.log(a_creator)
         if (!channel) {
             message.reply({
             content: "接続先のVCが見つかりません。",
@@ -96,12 +97,16 @@ export const CallFuncWithoutSlash=async (message:Message)=>{
             const connection = joinVoiceChannel({
                 channelId: c_id,
                 guildId: g_id,
-                adapterCreator: a_creator,
+                adapterCreator: a_creator as any,
                 selfMute: false,
                 selfDeaf: true,
             });
-            console.log(connection.state)
-            message.reply("接続に成功しました。").catch(() => { });
+            try{
+                await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
+                message.reply("接続に成功しました。").catch(() => { });
+            }catch(e){
+                message.reply("VCへの接続がタイムアウトしました。").catch(() => { });
+            }
         }else{
             throw("")
         }

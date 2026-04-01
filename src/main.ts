@@ -1,11 +1,11 @@
 //必要なパッケージをインポートする
-import { GatewayIntentBits, Client, Partials, Message, Interaction } from 'discord.js'
+import { GatewayIntentBits, Client, Partials, Message, Interaction, VoiceState } from 'discord.js'
 import dotenv from 'dotenv'
 import { CallCommand, callFunc, CallFuncWithoutSlash } from './commands/call'
 import { LeaveCommand, leaveFunc, leaveFuncWithoutSlash } from './commands/leave'
 import { RingCommand, ringFunc } from './commands/ring'
 import { yomiage } from './func/yomiage'
-import { generateDependencyReport } from '@discordjs/voice'
+import { generateDependencyReport, getVoiceConnection } from '@discordjs/voice'
 import { dictAddFuncWithoutSlash, dictDeleteFuncWithoutSlash, dictGetFuncWithoutSlash } from './commands/dict'
 
 console.log(generateDependencyReport());
@@ -114,6 +114,22 @@ async function ComandCalled(interaction: Interaction){
   }
 }
 client.on("interactionCreate", (i)=>ComandCalled(i).catch())
+
+client.on("voiceStateUpdate", (oldState: VoiceState, _newState: VoiceState) => {
+    if (!oldState.channel) return
+    const me = oldState.guild.members.me
+    if (!me?.voice.channel) return
+    if (oldState.channel.id !== me.voice.channel.id) return
+    const members = oldState.channel.members.filter(m => !m.user.bot)
+    if (members.size === 0) {
+        const connection = getVoiceConnection(oldState.guild.id)
+        if (connection) {
+            connection.destroy()
+            MAP.delete(oldState.guild.id)
+            console.log("全員退室したため切断しました")
+        }
+    }
+})
 
 //ボット作成時のトークンでDiscordと接続
 client.login(process.env.TOKEN)

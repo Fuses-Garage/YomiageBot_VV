@@ -1,7 +1,19 @@
-import { createAudioPlayer, createAudioResource, StreamType } from "@discordjs/voice";
+import { AudioPlayerStatus, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState } from "@discordjs/voice";
 import { makeWav } from "../func/makewav";
 const { getVoiceConnection } = require('@discordjs/voice');
 const fs = require("fs");
+
+const players = new Map<string, ReturnType<typeof createAudioPlayer>>();
+
+function getOrCreatePlayer(gid: string) {
+    let player = players.get(gid);
+    if (!player) {
+        player = createAudioPlayer();
+        players.set(gid, player);
+    }
+    return player;
+}
+
 export const yomiage=async (text:string,gid:string)=>{
     try{
         const connection = getVoiceConnection(gid);
@@ -9,15 +21,20 @@ export const yomiage=async (text:string,gid:string)=>{
             console.log("接続がないです")
             return
         }
-        const path=await makeWav(text,process.env.VOICEVOX_ENDPOINT??"",`${Math.random().toString(32).substring(2)}.wav`)
-        const resource = createAudioResource(path,
-        {
-        inputType: StreamType.Arbitrary,
-        });
-        const player = createAudioPlayer({});
-        player.play(resource);
+
+        if(connection.state.status !== VoiceConnectionStatus.Ready){
+            await entersState(connection, VoiceConnectionStatus.Ready, 10_000);
+        }
+
+        const wavPath=await makeWav(text,process.env.VOICEVOX_ENDPOINT??"",`${process.env.SOUND_DIR}${Math.random().toString(32).substring(2)}.wav`)
+        const resource = createAudioResource(wavPath);
+        const player = getOrCreatePlayer(gid);
         connection.subscribe(player);
-    }catch{
-    return
+        player.play(resource);
+
+        await entersState(player, AudioPlayerStatus.Idle, 30_000);
+        fs.unlink(wavPath,()=>{});
+    }catch(e){
+        console.error("読み上げエラー:",e);
     }
 }
