@@ -5,7 +5,7 @@ const fs = require("fs");
 
 const players = new Map<string, ReturnType<typeof createAudioPlayer>>();
 
-function getOrCreatePlayer(gid: string) {
+export function getOrCreatePlayer(gid: string) {
     let player = players.get(gid);
     if (!player) {
         player = createAudioPlayer();
