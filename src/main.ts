@@ -50,11 +50,10 @@ client.on('messageCreate', async (message: Message) => {
             CallFuncWithoutSlash(message).then(()=>{
               //@ts-ignore
               MAP.set(message.guildId??"",message.channelId)
-              return
-            })
+            }).catch((e) => console.error("call error:", e))
             return
           case "leave":
-            leaveFuncWithoutSlash(message)
+            leaveFuncWithoutSlash(message).catch((e) => console.error("leave error:", e))
             return
           case "dict":
             if(str.length<3){
@@ -68,17 +67,17 @@ client.on('messageCreate', async (message: Message) => {
                   return
                 }
                 console.log("array"+JSON.stringify(str))
-                dictAddFuncWithoutSlash(message,str[3],str[4])
+                dictAddFuncWithoutSlash(message,str[3],str[4]).catch((e) => console.error("dict add error:", e))
                 return
               case "get":
-                dictGetFuncWithoutSlash(message)
+                dictGetFuncWithoutSlash(message).catch((e) => console.error("dict get error:", e))
                 return
               case "delete":
                 if(str.length<4){
                   message.reply("引数が足りません")
                   return
                 }
-                dictDeleteFuncWithoutSlash(message,str[3])
+                dictDeleteFuncWithoutSlash(message,str[3]).catch((e) => console.error("dict delete error:", e))
                 return
             }
             return
@@ -113,7 +112,7 @@ async function ComandCalled(interaction: Interaction){
     }
   }
 }
-client.on("interactionCreate", (i)=>ComandCalled(i).catch())
+client.on("interactionCreate", (i) => ComandCalled(i).catch((e) => console.error("interactionCreate error:", e)))
 
 client.on("voiceStateUpdate", (oldState: VoiceState, _newState: VoiceState) => {
     if (!oldState.channel) return

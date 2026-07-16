@@ -14,6 +14,7 @@ export const leaveFunc=async (interaction:CommandInteraction)=>{
             interaction.reply("まだ接続してません。").catch(() => { });
         }
     }catch(e){
+        console.error("leaveFunc error:", e);
         interaction.reply("エラーが発生しました。").catch(() => { });
     }
     return
@@ -28,6 +29,7 @@ export const leaveFuncWithoutSlash=async (message:Message)=>{
             message.reply("まだ接続してません。").catch(() => { });
         }
     }catch(e){
+        console.error("leaveFuncWithoutSlash error:", e);
         message.reply("エラーが発生しました。").catch(() => { });
     }
     return

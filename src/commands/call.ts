@@ -62,6 +62,7 @@ export const callFunc=async (interaction:CommandInteraction)=>{
                 await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
                 interaction.reply("接続に成功しました。").catch(() => { });
             }catch(e){
+                console.error("VC接続タイムアウト:", e);
                 interaction.reply("VCへの接続がタイムアウトしました。").catch(() => { });
             }
         }else{
@@ -69,6 +70,7 @@ export const callFunc=async (interaction:CommandInteraction)=>{
         }
         return
     }catch(e){
+        console.error("callFunc error:", e);
         interaction.reply("エラーが発生しました。").catch(() => { });
     }
 }
@@ -105,6 +107,7 @@ export const CallFuncWithoutSlash=async (message:Message)=>{
                 await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
                 message.reply("接続に成功しました。").catch(() => { });
             }catch(e){
+                console.error("VC接続タイムアウト:", e);
                 message.reply("VCへの接続がタイムアウトしました。").catch(() => { });
             }
         }else{
@@ -112,6 +115,7 @@ export const CallFuncWithoutSlash=async (message:Message)=>{
         }
         return
     }catch(e){
+        console.error("CallFuncWithoutSlash error:", e);
         message.reply("エラーが発生しました。").catch(() => { });
     }
 }

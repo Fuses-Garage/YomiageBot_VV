@@ -6,6 +6,7 @@ export const dictAddFuncWithoutSlash=async (message:Message,t:string,y:string)=>
         const res=await addDict(t,y,process.env.VOICEVOX_ENDPOINT??"")
         message.reply(res).catch(() => { });
     }catch(e){
+        console.error("dictAdd error:", e);
         message.reply("エラーが発生しました。").catch(() => { });
     }
     return
@@ -15,6 +16,7 @@ export const dictGetFuncWithoutSlash=async (message:Message)=>{
         const res=await getDict(process.env.VOICEVOX_ENDPOINT??"")
         message.reply(res).catch(() => { });
     }catch(e){
+        console.error("dictGet error:", e);
         message.reply("エラーが発生しました。").catch(() => { });
     }
     return
@@ -24,6 +26,7 @@ export const dictDeleteFuncWithoutSlash=async (message:Message,id:string)=>{
         const res=await deleteDict(id,process.env.VOICEVOX_ENDPOINT??"")
         message.reply(res).catch(() => { });
     }catch(e){
+        console.error("dictDelete error:", e);
         message.reply("エラーが発生しました。").catch(() => { });
     }
     return
